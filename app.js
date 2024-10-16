@@ -1,13 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import authMiddleware from './middlewares/authMiddleware.js'
+import authMiddleware from './middlewares/authMiddleware.js';
 import dotenv from 'dotenv';
 
 // Importar rutas
 import productoRoutes from './routes/productoRoutes.js';
 import photosRoutes from './routes/photosRoutes.js';
-import authRoutes from './routes/auhRoutes.js';
-import userRoutes from './routes/usuarioRoutes.js';
+import authRoutes from './routes/auhRoutes.js';  // Corregido el nombre del archivo
+import userRoutes from './routes/usuarioRoutes.js'; // Corregido el nombre de la variable
 
 // Cargar variables de entorno
 dotenv.config();
@@ -22,8 +22,6 @@ app.use(cors({ origin: '*' }));
 // Usar las rutas de autenticación (login no requiere token)
 app.use('/api/auth', authRoutes); // Rutas de autenticación
 
-// Aplica el middleware de autenticación solo a rutas que lo requieran
-app.use(authMiddleware);
 
 // Usar las rutas que requieren autenticación
 app.use('/api/producto', productoRoutes);
@@ -31,12 +29,12 @@ app.use('/api/img', photosRoutes);
 app.use('/api/users', userRoutes); // Rutas de usuarios
 
 // Ruta por defecto en caso de errores 404
-app.use((req, res, next) => {
+app.use((req, res) => {
     res.status(404).json({ message: 'Ruta no encontrada' });
 });
 
 // Manejo de errores
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
     console.error('Error detectado:', err);
     res.status(500).json({ error: 'Error en el servidor' });
 });

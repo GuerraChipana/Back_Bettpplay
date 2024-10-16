@@ -3,13 +3,18 @@ import productoDAO from '../daos/productoDAO.js';
 
 // Servicio para agregar un nuevo producto
 export async function agregarProducto(datosProducto, file) {
-    const { nombre_producto, marca_producto, precio_producto } = datosProducto;
+    const { nombre_producto, marca_producto, precio_producto, id_categoria } = datosProducto;
 
     // Validaciones de negocio
-    if (!nombre_producto || !marca_producto || !precio_producto) {
-        throw new Error('El nombre, la marca y el precio son obligatorios.');
+    if (!nombre_producto) {
+        throw new Error('El nombre es obligatorio.');
+    } else if (!marca_producto) {
+        throw new Error('La marca del producto es obligatorio.');
+    } else if (!precio_producto) {
+        throw new Error('El precio es obligatorio.');
+    } else if (!id_categoria) {
+        throw new Error('La categoria es obligatorio.');
     }
-
     if (precio_producto <= 0) {
         throw new Error('El precio del producto debe ser mayor a cero.');
     }
@@ -20,11 +25,15 @@ export async function agregarProducto(datosProducto, file) {
 
 // Servicio para editar un producto existente
 export async function editarProducto(id, datosProducto, file, id_user_modificacion) {
-    const { nombre_producto, marca_producto, precio_producto } = datosProducto;
+    const { nombre_producto, marca_producto, precio_producto, id_categoria } = datosProducto;
 
     // Validaciones de negocio
-    if (!nombre_producto || !marca_producto) {
-        throw new Error('El nombre y la marca son obligatorios.');
+    if (!nombre_producto) {
+        throw new Error('El nombre es obligatorio.');
+    } else if (!marca_producto) {
+        throw new Error('La marca del producto es obligatorio.');
+    } else if (!id_categoria) {
+        throw new Error('La categoria es obligatorio.');
     }
 
     if (precio_producto && precio_producto <= 0) {
@@ -37,12 +46,12 @@ export async function editarProducto(id, datosProducto, file, id_user_modificaci
 
 // Servicio para listar todos los productos (para administradores)
 export async function listarProductos() {
-    return await productoDAO.listarProductos({}); 
+    return await productoDAO.listarProductos({});
 }
 
 // Servicio para listar productos por categoría (para administradores)
-export async function listarProductosPorCategoria(categoriaId) {
-    return await productoDAO.listarProductos({ categoriaId });
+export async function listarProductosPorCategoria(id_categoria) {
+    return await productoDAO.listarProductos({ id_categoria });
 }
 
 // Servicio para listar productos por marca (para administradores)
@@ -70,7 +79,7 @@ export async function listarProductosActivosPorMarca(marca) {
 export async function cambiarEstadoProducto(id, estado, id_user_modificacion) {
 
     // Validaciones de negocio
-    const estadosPermitidos = ['activo', 'desmantelado'];
+    const estadosPermitidos = ['activo', 'descontinuado'];
 
     if (!estadosPermitidos.includes(estado)) {
         throw new Error(`El estado ${estado} no es válido. Los estados permitidos son: ${estadosPermitidos.join(', ')}`);

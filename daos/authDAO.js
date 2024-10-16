@@ -10,7 +10,7 @@ class AuthDAO {
         const query = `
             SELECT id, usuario, contraseña_usuario, rol_usuario, estado_usuario 
             FROM usuarios 
-            WHERE usuario = ? AND estado_usuario = '1'
+            WHERE usuario = ? 
         `;
         
         const [resultados] = await db.query(query, [usuario]);

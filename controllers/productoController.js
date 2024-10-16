@@ -75,8 +75,8 @@ export const obtenerProductos = async (req, res) => {
 // Listar productos por categoría (Administrador)
 export const obtenerProductosPorCategoria = async (req, res) => {
     try {
-        const { categoriaId } = req.params;
-        const productos = await listarProductosPorCategoria(categoriaId);
+        const { id_categoria } = req.params;
+        const productos = await listarProductosPorCategoria(id_categoria);
         res.status(200).json(productos);
     } catch (error) {
         console.error('Error detectado:', error);

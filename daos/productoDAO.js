@@ -4,7 +4,7 @@ import { subirFoto, eliminarFoto } from '../services/s3Servicio.js';
 class ProductoDAO {
     // Agregar un nuevo producto
     async agregarProducto(datosProducto, file) {
-        const { nombre_producto, descripcion_producto, marca_producto, precio_producto, categoria_id, id_user_creacion } = datosProducto;
+        const { nombre_producto, descripcion_producto, marca_producto, precio_producto, id_categoria, id_user_creacion } = datosProducto;
 
         // Verificar si ya existe un producto con el mismo nombre y marca
         const queryVerificar =
@@ -25,7 +25,7 @@ class ProductoDAO {
         // Insertar el nuevo producto con cantidad inicial 0 y estado "agotado"
         const queryInsertar =
             `INSERT INTO productos
-            (imagen, nombre_producto, descripcion_producto, marca_producto, precio_producto, cantidad_producto, estado_producto, categoria_id, id_user_creacion)
+            (imagen, nombre_producto, descripcion_producto, marca_producto, precio_producto, cantidad_producto, estado_producto, id_categoria, id_user_creacion)
             VALUES(?, ?, ?, ?, ?, 0, 'agotado', ?, ?);`;
         const [result] = await db.query(queryInsertar, [
             imageUrl,
@@ -33,7 +33,7 @@ class ProductoDAO {
             descripcion_producto,
             marca_producto,
             precio_producto,
-            categoria_id,
+            id_categoria,
             id_user_creacion
         ]);
 
@@ -41,7 +41,7 @@ class ProductoDAO {
     }
 
     async editarProducto(id, datosProducto, file, id_user_modificacion) {
-        const { nombre_producto, descripcion_producto, marca_producto, precio_producto, categoria_id, cantidad_producto } = datosProducto;
+        const { nombre_producto, descripcion_producto, marca_producto, precio_producto, id_categoria, cantidad_producto } = datosProducto;
 
         // Verificar si ya existe otro producto con el mismo nombre y marca, excluyendo el actual
         const queryVerificar =
@@ -70,7 +70,7 @@ class ProductoDAO {
         const queryActualizar =
             `UPDATE productos 
             SET imagen = ?, nombre_producto = ?, descripcion_producto = ?, marca_producto = ?,
-            precio_producto = ?, cantidad_producto = ?, categoria_id = ?,
+            precio_producto = ?, cantidad_producto = ?, id_categoria = ?,
             fecha_modificacion = NOW(), id_user_modificacion = ?
             WHERE id = ?;`;
 
@@ -81,12 +81,12 @@ class ProductoDAO {
             marca_producto,
             precio_producto,
             nuevaCantidad,
-            categoria_id,
+            id_categoria,
             id_user_modificacion,
             id
         ]);
 
-        return { id, nombre_producto, descripcion_producto, marca_producto, precio_producto, imageUrl, nuevaCantidad };
+        return { id, nombre_producto, descripcion_producto, marca_producto, precio_producto, id_categoria, imageUrl, nuevaCantidad };
     }
 
     // Cambiar el estado del producto a un estado específico
@@ -116,7 +116,7 @@ class ProductoDAO {
     }
 
     // Listar todos los productos 
-    async listarProductos({ estado = null, categoriaId = null, marca = null }) {
+    async listarProductos({ estado = null, id_categoria = null, marca = null }) {
         let query = 'SELECT * FROM productos WHERE 1=1';
         const params = [];
 
@@ -124,9 +124,9 @@ class ProductoDAO {
             query += ' AND estado_producto = ?';
             params.push(estado);
         }
-        if (categoriaId) {
-            query += ' AND categoria_id = ?';
-            params.push(categoriaId);
+        if (id_categoria) {
+            query += ' AND id_categoria = ?';
+            params.push(id_categoria);
         }
         if (marca) {
             query += ' AND marca_producto = ?';
