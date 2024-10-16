@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 import productoRoutes from './routes/productoRoutes.js';
 import photosRoutes from './routes/photosRoutes.js';
 import authRoutes from './routes/auhRoutes.js';
-import userRoutes from './routes/userRoutes.js';
+import userRoutes from './routes/usuarioRoutes.js';
 
 // Cargar variables de entorno
 dotenv.config();
