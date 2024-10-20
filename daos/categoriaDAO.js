@@ -22,7 +22,7 @@ class CategoriaDAO {
 
         // Subimos la imagen para obtener el URL
         const imageUrl = await subirFoto(file);
-        datosCategoria.imageUrl = imageUrl; // Asegúrate de almacenar la URL
+        datosCategoria.imageUrl = imageUrl; 
 
         // Insertamos en la tabla
         const queryInsertar = `INSERT INTO CATEGORIAS (IMAGEN_CATEGORIA, NOMBRE_CATEGORIA, DETALLE_CATEGORIA, ID_USER_CREACION) VALUES (?,?,?,?)`;
