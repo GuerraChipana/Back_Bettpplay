@@ -72,7 +72,7 @@ class ProductoDAO {
             SET imagen = ?, nombre_producto = ?, descripcion_producto = ?, marca_producto = ?,
             precio_producto = ?, cantidad_producto = ?, id_categoria = ?,
             fecha_modificacion = NOW(), id_user_modificacion = ?
-            WHERE id = ?;`;
+            WHERE id = ?`;
 
         await db.query(queryActualizar, [
             imageUrl,
@@ -117,7 +117,7 @@ class ProductoDAO {
 
     // Listar todos los productos 
     async listarProductos({ estado = null, id_categoria = null, marca = null }) {
-        let query = 'SELECT * FROM productos WHERE 1=1';
+        let query = 'SELECT IMAGEN,NOMBRE_PRODUCTO,DESCRIPCION_PRODUCTO,MARCA_PRODUCTO, PRECIO_PRODUCTO,CANTIDAD_PRODUCTO,ESTADO_PRODUCTO,ID_CATEGORIA FROM productos WHERE 1=1';
         const params = [];
 
         if (estado) {

@@ -1,34 +1,31 @@
 import express from 'express';
 import cors from 'cors';
-import authMiddleware from './middlewares/authMiddleware.js';
 import dotenv from 'dotenv';
 
 // Importar rutas
 import productoRoutes from './routes/productoRoutes.js';
 import photosRoutes from './routes/photosRoutes.js';
-import authRoutes from './routes/auhRoutes.js';  // Corregido el nombre del archivo
-import userRoutes from './routes/usuarioRoutes.js'; // Corregido el nombre de la variable
+import authRoutes from './routes/auhRoutes.js';
+import userRoutes from './routes/usuarioRoutes.js';
+import categoriaRouter from './routes/categoriaRoutes.js';
 
 // Cargar variables de entorno
 dotenv.config();
 
-const port = process.env.PORT || 3004; 
+const port = process.env.PORT;
 const app = express();
 
 // Middleware de configuración
-app.use(express.json()); // Para parsear JSON en las peticiones
+app.use(express.json());
 app.use(cors({ origin: '*' }));
 
 // Usar las rutas de autenticación (login no requiere token)
-app.use('/api/auth', authRoutes); // Rutas de autenticación
-
-
-// Usar las rutas que requieren autenticación
+app.use('/api/auth', authRoutes);
 app.use('/api/producto', productoRoutes);
 app.use('/api/img', photosRoutes);
-app.use('/api/users', userRoutes); // Rutas de usuarios
+app.use('/api/users', userRoutes);
+app.use('/api/categoria', categoriaRouter);
 
-// Ruta por defecto en caso de errores 404
 app.use((req, res) => {
     res.status(404).json({ message: 'Ruta no encontrada' });
 });
