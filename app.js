@@ -9,6 +9,7 @@ import authRoutes from './routes/auhRoutes.js';
 import userRoutes from './routes/usuarioRoutes.js';
 import categoriaRoutes from './routes/categoriaRoutes.js';
 import proveedorRoutes from './routes/proveedorRoutes.js';
+import abastecimientoRoutes from './routes/abasteciminetoRoutes.js';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -27,6 +28,7 @@ app.use('/api/img', photosRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categoria', categoriaRoutes);
 app.use('/api/proveedor', proveedorRoutes);
+app.use('/api/abas', abastecimientoRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

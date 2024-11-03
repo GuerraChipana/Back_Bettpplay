@@ -7,8 +7,7 @@ import {
     listarProductosPorMarca,
     listarProductosActivosPorCategoria,
     listarProductosActivosPorMarca,
-    cambiarEstadoProducto,
-    actualizarEstadoPorCantidad
+    cambiarEstadoProducto
 } from '../services/productoServicio.js';
 
 // ------------------- Controladores para Administradores -------------------
@@ -54,23 +53,15 @@ export const modificarProducto = async (req, res) => {
 // Listar todos los productos (Administrador)
 export const obtenerProductos = async (req, res) => {
     try {
-        // Listar todos los productos
-        const productos = await listarProductos();
+        // Listar todos los productos y actualizar su estado
+        const productos = await listarProductos({ listarTodos: true });
 
-        // Actualizar el estado de cada producto basado en la cantidad
-        for (const producto of productos) {
-            await actualizarEstadoPorCantidad(producto.id);
-        }
-
-        // Volver a listar los productos después de actualizar el estado
-        const productosActualizados = await listarProductos();
-        res.status(200).json(productosActualizados);
+        res.status(200).json(productos);
     } catch (error) {
         console.error('Error detectado:', error);
         res.status(500).json({ error: error.message });
     }
 };
-
 
 // Listar productos por categoría (Administrador)
 export const obtenerProductosPorCategoria = async (req, res) => {

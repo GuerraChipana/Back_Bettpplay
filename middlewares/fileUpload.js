@@ -1,7 +1,7 @@
 import fileUpload from 'express-fileupload';
 
 const fileUploadMiddleware = fileUpload({
-    useTempFiles: false,
+    useTempFiles: true,
 });
 
 

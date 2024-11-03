@@ -1,5 +1,5 @@
 import express from 'express';
-import ProveedorController from '../controllers/proveedorControllers.js';
+import ProveedorController from '../controllers/proveedorController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
