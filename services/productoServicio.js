@@ -1,4 +1,3 @@
-
 import productoDAO from '../daos/productoDAO.js';
 
 // Servicio para agregar un nuevo producto
@@ -13,13 +12,13 @@ export async function agregarProducto(datosProducto, file) {
     } else if (!precio_producto) {
         throw new Error('El precio es obligatorio.');
     } else if (!id_categoria) {
-        throw new Error('La categoria es obligatorio.');
+        throw new Error('La categoría es obligatoria.');
     }
     if (precio_producto <= 0) {
         throw new Error('El precio del producto debe ser mayor a cero.');
     }
 
-    // Una vez hecho las validaciones pasamos a llamar al dao
+    // Una vez hecho las validaciones, pasamos a llamar al DAO
     return await productoDAO.agregarProducto(datosProducto, file);
 }
 
@@ -31,53 +30,51 @@ export async function editarProducto(id, datosProducto, file, id_user_modificaci
     if (!nombre_producto) {
         throw new Error('El nombre es obligatorio.');
     } else if (!marca_producto) {
-        throw new Error('La marca del producto es obligatorio.');
+        throw new Error('La marca del producto es obligatoria.');
     } else if (!id_categoria) {
-        throw new Error('La categoria es obligatorio.');
+        throw new Error('La categoría es obligatoria.');
     }
 
     if (precio_producto && precio_producto <= 0) {
         throw new Error('El precio del producto debe ser mayor a cero.');
     }
 
-    // Una vez hecho las validaciones pasamos a llamar al dao
+    // Una vez hecho las validaciones, pasamos a llamar al DAO
     return await productoDAO.editarProducto(id, datosProducto, file, id_user_modificacion);
 }
 
 // Servicio para listar todos los productos (para administradores)
 export async function listarProductos() {
-    return await productoDAO.listarProductos({});
+    return await productoDAO.listarProductosConEstado({ listarTodos: true });
 }
 
 // Servicio para listar productos por categoría (para administradores)
 export async function listarProductosPorCategoria(id_categoria) {
-    return await productoDAO.listarProductos({ id_categoria });
+    return await productoDAO.listarProductosConEstado({ id_categoria });
 }
 
 // Servicio para listar productos por marca (para administradores)
 export async function listarProductosPorMarca(marca) {
-    return await productoDAO.listarProductos({ marca });
+    return await productoDAO.listarProductosConEstado({ marca });
 }
 
 // Servicio para listar solo los productos activos (para clientes)
 export async function listarProductosActivos() {
-    return await productoDAO.listarProductos({ estado: 'activo' });
+    return await productoDAO.listarProductosConEstado({ estado: 'activo' });
 }
 
 // Servicio para listar productos activos por categoría (para clientes)
-export async function listarProductosActivosPorCategoria(categoriaId) {
-    return await productoDAO.listarProductos({ estado: 'activo', categoriaId });
+export async function listarProductosActivosPorCategoria(id_categoria) {
+    return await productoDAO.listarProductosConEstado({ estado: 'activo', id_categoria });
 }
 
 // Servicio para listar productos activos por marca (para clientes)
 export async function listarProductosActivosPorMarca(marca) {
-    return await productoDAO.listarProductos({ estado: 'activo', marca });
+    return await productoDAO.listarProductosConEstado({ estado: 'activo', marca });
 }
-
 
 // Servicio para cambiar el estado de un producto
 export async function cambiarEstadoProducto(id, estado, id_user_modificacion) {
-
     // Validaciones de negocio
     const estadosPermitidos = ['activo', 'descontinuado'];
 
@@ -85,7 +82,7 @@ export async function cambiarEstadoProducto(id, estado, id_user_modificacion) {
         throw new Error(`El estado ${estado} no es válido. Los estados permitidos son: ${estadosPermitidos.join(', ')}`);
     }
 
-    // Una vez hecho las validaciones pasamos a llamar al dao
+    // Una vez hecho las validaciones, pasamos a llamar al DAO
     return await productoDAO.cambiarEstadoProducto(id, estado, id_user_modificacion);
 }
 
@@ -93,4 +90,3 @@ export async function cambiarEstadoProducto(id, estado, id_user_modificacion) {
 export async function actualizarEstadoPorCantidad(productId) {
     return await productoDAO.actualizarEstadoPorCantidad(productId);
 }
-
