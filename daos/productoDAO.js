@@ -99,43 +99,102 @@ class ProductoDAO {
         return { id, estado: nuevoEstado };
     }
 
-    // Actualizar el estado del producto según la cantidad
-    async actualizarEstadoPorCantidad(productId) {
-        const [producto] = await db.query('SELECT cantidad_producto FROM productos WHERE id = ?', [productId]);
-        if (producto.length === 0) throw new Error('Producto no encontrado');
+    async listarProductosConEstado({ estado = null, id_categoria = null, marca = null, listarTodos = false }) {
+        // Consultar todos los productos o con filtros
+        let query = `
+            SELECT 
+                id,
+                imagen,
+                nombre_producto,
+                descripcion_producto,
+                marca_producto,
+                precio_producto,
+                cantidad_producto,
+                estado_producto,
+                id_categoria 
+            FROM productos WHERE 1=1`;
 
-        const nuevaCantidad = producto[0].cantidad_producto;
-        const nuevoEstado = nuevaCantidad > 0 ? 'activo' : 'agotado';
-
-        const query =
-            `UPDATE productos 
-            SET estado_producto = ?
-            WHERE id = ?;`;
-        await db.query(query, [nuevoEstado, productId]);
-        return { id: productId, estado: nuevoEstado };
-    }
-
-    // Listar todos los productos 
-    async listarProductos({ estado = null, id_categoria = null, marca = null }) {
-        let query = 'SELECT IMAGEN,NOMBRE_PRODUCTO,DESCRIPCION_PRODUCTO,MARCA_PRODUCTO, PRECIO_PRODUCTO,CANTIDAD_PRODUCTO,ESTADO_PRODUCTO,ID_CATEGORIA FROM productos WHERE 1=1';
         const params = [];
 
-        if (estado) {
-            query += ' AND estado_producto = ?';
-            params.push(estado);
-        }
-        if (id_categoria) {
-            query += ' AND id_categoria = ?';
-            params.push(id_categoria);
-        }
-        if (marca) {
-            query += ' AND marca_producto = ?';
-            params.push(marca);
+        if (!listarTodos) {
+            if (estado) {
+                query += ' AND estado_producto = ?';
+                params.push(estado);
+            }
+            if (id_categoria) {
+                query += ' AND id_categoria = ?';
+                params.push(id_categoria);
+            }
+            if (marca) {
+                query += ' AND marca_producto = ?';
+                params.push(marca);
+            }
         }
 
         const [productos] = await db.query(query, params);
+
+        // Actualizar el estado de cada producto basado en la cantidad
+        for (const producto of productos) {
+            const nuevoEstado = producto.cantidad_producto > 0 ? 'activo' : 'agotado';
+
+            // No cambiar el estado si el producto está desmantelado
+            if (producto.estado_producto !== 'descontinuado' && producto.estado_producto !== nuevoEstado) {
+                // Actualizar el estado en la base de datos si ha cambiado
+                const queryActualizar = `
+                    UPDATE productos 
+                    SET estado_producto = ?
+                    WHERE id = ?;`;
+                await db.query(queryActualizar, [nuevoEstado, producto.id]);
+                producto.estado_producto = nuevoEstado; // Actualiza el objeto local
+            }
+        }
+
         return productos;
     }
+    // Método para buscar un producto por ID
+    async buscarProductoPorId(id) {
+        const [producto] = await db.query('SELECT * FROM productos WHERE id = ?', [id]);
+        if (producto.length === 0) throw new Error('Producto no encontrado');
+        return producto[0]; // Retornar el primer producto encontrado
+    }
+
+    // Método para actualizar un producto
+    async actualizarProducto(producto) {
+        const queryActualizar = `
+            UPDATE productos 
+            SET 
+                imagen = ?,
+                nombre_producto = ?,
+                descripcion_producto = ?,
+                marca_producto = ?,
+                precio_producto = ?,
+                cantidad_producto = ?,
+                estado_producto = ?,
+                id_categoria = ?,
+                fecha_modificacion = NOW() 
+            WHERE id = ?`;
+
+        await db.query(queryActualizar, [
+            producto.imagen,
+            producto.nombre_producto,
+            producto.descripcion_producto,
+            producto.marca_producto,
+            producto.precio_producto,
+            producto.cantidad_producto,
+            producto.estado_producto,
+            producto.id_categoria,
+            producto.id
+        ]);
+
+        return producto; // Retornar el producto actualizado
+    }
+    // productoDAO.js
+    async reducirCantidadProducto(id_producto, cantidad) {
+        const query = `UPDATE productos SET cantidad_producto = cantidad_producto - ? WHERE id = ?`;
+        await db.query(query, [cantidad, id_producto]);
+    }
+
+
 }
 
 export default new ProductoDAO();

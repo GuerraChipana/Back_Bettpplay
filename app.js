@@ -1,19 +1,27 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import http from 'http';
+import { Server } from 'socket.io'; 
 
 // Importar rutas
 import productoRoutes from './routes/productoRoutes.js';
 import photosRoutes from './routes/photosRoutes.js';
 import authRoutes from './routes/auhRoutes.js';
 import userRoutes from './routes/usuarioRoutes.js';
-import categoriaRouter from './routes/categoriaRoutes.js';
+import categoriaRoutes from './routes/categoriaRoutes.js';
+import proveedorRoutes from './routes/proveedorRoutes.js';
+import abastecimientoRoutes from './routes/abasteciminetoRoutes.js';
+import clienteRoutes from './routes/clienteRoutes.js';
+import carritoRoutes from './routes/carritoRoutes.js';
 
 // Cargar variables de entorno
 dotenv.config();
 
 const port = process.env.PORT;
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
 // Middleware de configuración
 app.use(express.json());
@@ -24,16 +32,31 @@ app.use('/api/auth', authRoutes);
 app.use('/api/producto', productoRoutes);
 app.use('/api/img', photosRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/categoria', categoriaRouter);
+app.use('/api/categoria', categoriaRoutes);
+app.use('/api/proveedor', proveedorRoutes);
+app.use('/api/abas', abastecimientoRoutes);
+app.use('/api/cliente',clienteRoutes);
+app.use('/api/carrito', carritoRoutes);
 
+
+// Manejo de rutas no encontradas
 app.use((req, res) => {
     res.status(404).json({ message: 'Ruta no encontrada' });
 });
 
 // Manejo de errores
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
     console.error('Error detectado:', err);
-    res.status(500).json({ error: 'Error en el servidor' });
+    res.status(500).json({ error: err.message || 'Error en el servidor' });
+});
+
+// Escuchar conexiones de WebSocket
+io.on('connection', (socket) => {
+    console.log('Un usuario se ha conectado');
+
+    socket.on('disconnect', () => {
+        console.log('Un usuario se ha desconectado');
+    });
 });
 
 // Iniciar servidor
