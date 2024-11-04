@@ -2,15 +2,9 @@ import express from 'express';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import fileUploadMiddleware from '../middlewares/fileUpload.js';
 import {
-    crearProducto,
-    modificarProducto,
-    obtenerProductos,
-    obtenerProductosPorCategoria,
-    obtenerProductosPorMarca,
-    cambiarEstado,
-    obtenerProductosActivos,
-    obtenerProductosActivosPorCategoria,
-    obtenerProductosActivosPorMarca
+    crearProducto, modificarProducto, obtenerProductos,
+    obtenerProductosPorCategoria, obtenerProductosPorMarca, cambiarEstado,
+    obtenerProductosActivos, obtenerProductosActivosPorCategoria, obtenerProductosActivosPorMarca
 } from '../controllers/productoController.js';
 
 const router = express.Router();

@@ -1,14 +1,4 @@
-import {
-    agregarProducto,
-    editarProducto,
-    listarProductos,
-    listarProductosActivos,
-    listarProductosPorCategoria,
-    listarProductosPorMarca,
-    listarProductosActivosPorCategoria,
-    listarProductosActivosPorMarca,
-    cambiarEstadoProducto
-} from '../services/productoServicio.js';
+import productosService from '../services/productoServicio.js';
 
 // ------------------- Controladores para Administradores -------------------
 
@@ -19,7 +9,7 @@ export const crearProducto = async (req, res) => {
         if (!file) return res.status(400).json({ error: 'No se ha recibido ninguna imagen' });
 
         const id_user_creacion = req.user.id;
-        const productoId = await agregarProducto({ ...req.body, id_user_creacion }, file);
+        const productoId = await productosService.agregarProducto({ ...req.body, id_user_creacion }, file);
 
         res.status(201).json({
             message: 'Producto agregado exitosamente',
@@ -38,7 +28,7 @@ export const modificarProducto = async (req, res) => {
         const file = req.files?.imagen;
         const id_user_modificacion = req.user.id;
 
-        const productoActualizado = await editarProducto(id, req.body, file, id_user_modificacion);
+        const productoActualizado = await productosService.editarProducto(id, req.body, file, id_user_modificacion);
 
         res.status(200).json({
             message: 'Producto actualizado exitosamente',
@@ -53,9 +43,7 @@ export const modificarProducto = async (req, res) => {
 // Listar todos los productos (Administrador)
 export const obtenerProductos = async (req, res) => {
     try {
-        // Listar todos los productos y actualizar su estado
-        const productos = await listarProductos({ listarTodos: true });
-
+        const productos = await productosService.listarProductos();
         res.status(200).json(productos);
     } catch (error) {
         console.error('Error detectado:', error);
@@ -67,7 +55,7 @@ export const obtenerProductos = async (req, res) => {
 export const obtenerProductosPorCategoria = async (req, res) => {
     try {
         const { id_categoria } = req.params;
-        const productos = await listarProductosPorCategoria(id_categoria);
+        const productos = await productosService.listarProductosPorCategoria(id_categoria);
         res.status(200).json(productos);
     } catch (error) {
         console.error('Error detectado:', error);
@@ -79,7 +67,7 @@ export const obtenerProductosPorCategoria = async (req, res) => {
 export const obtenerProductosPorMarca = async (req, res) => {
     try {
         const { marca } = req.params;
-        const productos = await listarProductosPorMarca(marca);
+        const productos = await productosService.listarProductosPorMarca(marca);
         res.status(200).json(productos);
     } catch (error) {
         console.error('Error detectado:', error);
@@ -94,7 +82,7 @@ export const cambiarEstado = async (req, res) => {
         const { estado } = req.body;
         const id_user_modificacion = req.user.id;
 
-        const productoActualizado = await cambiarEstadoProducto(id, estado, id_user_modificacion);
+        const productoActualizado = await productosService.cambiarEstadoProducto(id, estado, id_user_modificacion);
 
         res.status(200).json({
             message: 'Estado del producto actualizado exitosamente',
@@ -111,7 +99,7 @@ export const cambiarEstado = async (req, res) => {
 // Listar productos activos (Cliente)
 export const obtenerProductosActivos = async (req, res) => {
     try {
-        const productos = await listarProductosActivos();
+        const productos = await productosService.listarProductosActivos();
         res.status(200).json(productos);
     } catch (error) {
         console.error('Error detectado:', error);
@@ -123,7 +111,7 @@ export const obtenerProductosActivos = async (req, res) => {
 export const obtenerProductosActivosPorCategoria = async (req, res) => {
     try {
         const { categoriaId } = req.params;
-        const productos = await listarProductosActivosPorCategoria(categoriaId);
+        const productos = await productosService.listarProductosActivosPorCategoria(categoriaId);
         res.status(200).json(productos);
     } catch (error) {
         console.error('Error detectado:', error);
@@ -135,7 +123,7 @@ export const obtenerProductosActivosPorCategoria = async (req, res) => {
 export const obtenerProductosActivosPorMarca = async (req, res) => {
     try {
         const { marca } = req.params;
-        const productos = await listarProductosActivosPorMarca(marca);
+        const productos = await productosService.listarProductosActivosPorMarca(marca);
         res.status(200).json(productos);
     } catch (error) {
         console.error('Error detectado:', error);
