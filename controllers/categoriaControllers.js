@@ -4,34 +4,64 @@ class CategoriaController {
     // Crear categoría 
     async crearCategoria(req, res) {
         try {
-            const file = req.files?.imagen_categoria;
+            const file = req.file;  // Asegúrate de usar 'req.file' porque estás enviando un solo archivo con 'single('imagen')'
             if (!file) {
                 return res.status(400).json({ error: 'No se ha recibido ninguna imagen' });
             }
 
-            const id_user_creacion = req.user.id;
+            const id_user_creacion = req.user.id;  // Si estás utilizando un sistema de autenticación
             const categoriaId = await categoriaServicio.agregarCategoria({ ...req.body, id_user_creacion }, file);
 
             return res.status(201).json({
                 message: 'Categoría agregada exitosamente',
-                categoriaId
+                categoriaId,
             });
         } catch (error) {
             console.error('Error detectado:', error);
             res.status(500).json({ error: error.message });
         }
     }
+    // Obtener categoría por ID (para trabajadores)
+    async obtenerCategoriaPorId(req, res) {
+        try {
+            const { id } = req.params;
+            const categoria = await categoriaServicio.obtenerCategoriaPorId(id);
+
+            if (!categoria) {
+                return res.status(404).json({ error: 'Categoría no encontrada' });
+            }
+
+            res.status(200).json(categoria);
+        } catch (error) {
+            console.error('Error detectado:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+    // Obtener categoría activa por ID (para clientes)
+    async obtenerCategoriaActivaPorId(req, res) {
+        try {
+            const { id } = req.params;
+            const categoria = await categoriaServicio.obtenerCategoriaActivaPorId(id);
+
+            if (!categoria) {
+                return res.status(404).json({ error: 'Categoría activa no encontrada' });
+            }
+
+            res.status(200).json(categoria);
+        } catch (error) {
+            console.error('Error detectado:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
 
     // Modificar categoría
     async modificarCategoria(req, res) {
         try {
             const { id } = req.params;
-            const file = req.files?.imagen; 
+            const file = req.file;
             const id_user_modificacion = req.user.id;
 
-            if (!file) {
-                return res.status(400).json({ error: 'No se ha recibido ninguna imagen' });
-            }
 
             const categoriaActualizada = await categoriaServicio.editarCategoria(id, req.body, file, id_user_modificacion);
             res.status(200).json({

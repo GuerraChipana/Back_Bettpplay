@@ -24,13 +24,19 @@ const authService = {
         const token = jwt.sign(
             {
                 id: usuarioEncontrado.id,
+                usuario: usuarioEncontrado.usuario,
                 rol: usuarioEncontrado.rol_usuario,
             },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
-        return { token };
+        return {
+            token,
+            id: usuarioEncontrado.id,
+            usuario: usuarioEncontrado.usuario,
+            rol: usuarioEncontrado.rol_usuario
+        };
     }
 };
 

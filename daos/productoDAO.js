@@ -1,5 +1,5 @@
 import db from '../database/db.js';
-import { subirFoto, eliminarFoto } from '../services/s3Servicio.js';
+import { subirFoto, eliminarFoto } from '../services/imagenservicio.js';
 
 class ProductoDAO {
     // Agregar un nuevo producto
@@ -18,9 +18,8 @@ class ProductoDAO {
 
         // Procesar la imagen
         const nombreArchivo = `${marca_producto}_${nombre_producto}`.replace(/\s+/g, '_').toLowerCase() + '.jpeg';
-        file.name = nombreArchivo;
 
-        const imageUrl = await subirFoto(file);
+        const imageUrl = await subirFoto(file, nombreArchivo);
 
         // Insertar el nuevo producto con cantidad inicial 0 y estado "agotado"
         const queryInsertar =
@@ -37,15 +36,15 @@ class ProductoDAO {
             id_user_creacion
         ]);
 
-        return result.insertId;
+        return { productoID: result.insertId, imageUrl };
     }
 
     async editarProducto(id, datosProducto, file, id_user_modificacion) {
         const { nombre_producto, descripcion_producto, marca_producto, precio_producto, id_categoria, cantidad_producto } = datosProducto;
 
         // Verificar si ya existe otro producto con el mismo nombre y marca, excluyendo el actual
-        const queryVerificar =
-            `SELECT * FROM productos 
+        const queryVerificar = `
+            SELECT * FROM productos 
             WHERE nombre_producto = ? AND marca_producto = ? AND id != ?`;
         const [productoExistente] = await db.query(queryVerificar, [nombre_producto, marca_producto, id]);
 
@@ -53,29 +52,56 @@ class ProductoDAO {
             throw new Error('Ya existe otro producto con el mismo nombre y marca');
         }
 
+        // Realizamos la consulta para obtener los datos completos del producto
         const [productoActual] = await db.query('SELECT * FROM productos WHERE id = ?', [id]);
-        if (productoActual.length === 0) throw new Error('Producto no encontrado');
+        console.log('Producto recuperado de la base de datos:', productoActual);
 
-        let imageUrl = productoActual[0].imagen;
-        const nombreArchivoNuevo = `${marca_producto}_${nombre_producto}`.replace(/\s+/g, '_').toLowerCase() + '.jpeg';
-
-        if (file) {
-            await eliminarFoto(imageUrl);
-            file.name = nombreArchivoNuevo;
-            imageUrl = await subirFoto(file);
+        if (productoActual.length === 0) {
+            throw new Error('Producto no encontrado');
         }
 
+        // Realizamos una consulta separada para obtener solo la imagen del producto
+        const [imageUrlData] = await db.query('SELECT imagen FROM productos WHERE id = ?', [id]);
+
+        console.log('Imagen anterior:', imageUrlData);  // Verifica si la URL está presente o no
+
+        // Si la URL de la imagen es null o no está definida, la dejamos vacía
+        let imageUrlAnterior = imageUrlData && imageUrlData[0] ? imageUrlData[0].imagen : null;
+
+        console.log('Imagen URL anterior:', imageUrlAnterior);  // Verifica si la URL de la imagen fue recuperada correctamente
+
+        // Si no se pasa un archivo (imagen), conservamos la URL anterior
+        let nuevaImagenUrl = imageUrlAnterior;
+
+        // Si se ha recibido un archivo (imagen), procesamos la nueva imagen
+        if (file) {
+            console.log('Nuevo archivo recibido:', file);
+
+            const nuevoNombreArchivo = `${marca_producto}_${nombre_producto}`.replace(/\s+/g, '_').toLowerCase() + '.jpeg';
+
+            // Si existe una imagen anterior, la eliminamos
+            if (imageUrlAnterior) {
+                const nombreArchivoAnterior = imageUrlAnterior.split('/').pop();
+                await eliminarFoto(nombreArchivoAnterior);  // Elimina la imagen anterior si existe
+            }
+
+            // Subimos la nueva imagen y obtenemos su URL
+            nuevaImagenUrl = await subirFoto(file, nuevoNombreArchivo);
+            console.log('Nueva imagen subida, URL:', nuevaImagenUrl);
+        }
+
+        // Si la cantidad no está definida, usamos la cantidad actual del producto
         const nuevaCantidad = cantidad_producto !== undefined ? cantidad_producto : productoActual[0].cantidad_producto;
 
-        const queryActualizar =
-            `UPDATE productos 
+        // Actualizamos los datos del producto en la base de datos
+        const queryActualizar = `
+            UPDATE productos 
             SET imagen = ?, nombre_producto = ?, descripcion_producto = ?, marca_producto = ?,
-            precio_producto = ?, cantidad_producto = ?, id_categoria = ?,
-            fecha_modificacion = NOW(), id_user_modificacion = ?
+            precio_producto = ?, cantidad_producto = ?, id_categoria = ?, fecha_modificacion = NOW(), id_user_modificacion = ?
             WHERE id = ?`;
 
-        await db.query(queryActualizar, [
-            imageUrl,
+        const result = await db.query(queryActualizar, [
+            nuevaImagenUrl,  // La URL de la imagen (anterior o nueva)
             nombre_producto,
             descripcion_producto,
             marca_producto,
@@ -86,8 +112,24 @@ class ProductoDAO {
             id
         ]);
 
-        return { id, nombre_producto, descripcion_producto, marca_producto, precio_producto, id_categoria, imageUrl, nuevaCantidad };
+        // Si no se actualizó ninguna fila, lanzamos un error
+        if (result.affectedRows === 0) {
+            throw new Error('No se pudo actualizar el producto');
+        }
+
+        // Retornamos el producto con los datos actualizados, incluyendo la URL de la imagen
+        return {
+            id,
+            nombre_producto,
+            descripcion_producto,
+            marca_producto,
+            precio_producto,
+            id_categoria,
+            imagen: nuevaImagenUrl,  // Siempre incluimos la URL de la imagen
+            cantidad_producto: nuevaCantidad
+        };
     }
+
 
     // Cambiar el estado del producto a un estado específico
     async cambiarEstadoProducto(id, nuevoEstado, id_user_modificacion) {

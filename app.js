@@ -6,7 +6,6 @@ import { Server } from 'socket.io';
 
 // Importar rutas
 import productoRoutes from './routes/productoRoutes.js';
-import photosRoutes from './routes/photosRoutes.js';
 import authRoutes from './routes/auhRoutes.js';
 import userRoutes from './routes/usuarioRoutes.js';
 import categoriaRoutes from './routes/categoriaRoutes.js';
@@ -25,12 +24,11 @@ const io = new Server(server);
 
 // Middleware de configuración
 app.use(express.json());
-app.use(cors({ origin: '*' }));
+app.use(cors()); 
 
 // Usar las rutas de autenticación (login no requiere token)
 app.use('/api/auth', authRoutes);
 app.use('/api/producto', productoRoutes);
-app.use('/api/img', photosRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categoria', categoriaRoutes);
 app.use('/api/proveedor', proveedorRoutes);
@@ -38,6 +36,14 @@ app.use('/api/abas', abastecimientoRoutes);
 app.use('/api/cliente',clienteRoutes);
 app.use('/api/carrito', carritoRoutes);
 
+import path from 'path';
+import url from 'url';
+
+// Obtener la ruta del directorio actual
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+
+// Ahora puedes usar __dirname para construir la ruta
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

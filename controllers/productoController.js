@@ -5,7 +5,7 @@ import productosService from '../services/productoServicio.js';
 // Crear un producto
 export const crearProducto = async (req, res) => {
     try {
-        const file = req.files?.imagen;
+        const file = req.file;
         if (!file) return res.status(400).json({ error: 'No se ha recibido ninguna imagen' });
 
         const id_user_creacion = req.user.id;
@@ -13,7 +13,8 @@ export const crearProducto = async (req, res) => {
 
         res.status(201).json({
             message: 'Producto agregado exitosamente',
-            productoId
+            productoId,
+
         });
     } catch (error) {
         console.error('Error detectado:', error);
@@ -25,7 +26,7 @@ export const crearProducto = async (req, res) => {
 export const modificarProducto = async (req, res) => {
     try {
         const { id } = req.params;
-        const file = req.files?.imagen;
+        const file = req.file;
         const id_user_modificacion = req.user.id;
 
         const productoActualizado = await productosService.editarProducto(id, req.body, file, id_user_modificacion);
