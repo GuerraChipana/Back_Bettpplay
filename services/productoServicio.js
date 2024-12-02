@@ -14,6 +14,12 @@ class ProductosService {
 
         return await productoDAO.agregarProducto(datosProducto, file);
     }
+    // Servicio para buscar un producto por ID
+    async buscarProductoPorId(id) {
+        const producto = await productoDAO.buscarProductoPorId(id);
+        return producto;
+    }
+
 
     // Servicio para editar un producto existente
     async editarProducto(id, datosProducto, file, id_user_modificacion) {

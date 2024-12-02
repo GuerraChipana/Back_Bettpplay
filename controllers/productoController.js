@@ -94,6 +94,21 @@ export const cambiarEstado = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+// Buscar un producto por ID 
+export const obtenerProductoPorId = async (req, res) => {
+    try {
+        const { id } = req.params;  
+        const producto = await productosService.buscarProductoPorId(id);
+
+        res.status(200).json({
+            message: 'Producto encontrado exitosamente',
+            producto,
+        });
+    } catch (error) {
+        console.error('Error detectado:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
 
 // ------------------- Controladores para Clientes -------------------
 

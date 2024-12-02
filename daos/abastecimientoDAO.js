@@ -55,13 +55,13 @@ class abastecimientoDAO {
         const [producto] = await db.query(query, [idProducto]);
         return producto[0]; // Devuelve el primer producto encontrado
     }
-    
+
     async obtenerDetallesCategoria(idCategoria) {
         const query = `SELECT nombre_categoria FROM categorias WHERE id = ?`;
         const [categoria] = await db.query(query, [idCategoria]);
         return categoria[0]; // Devuelve la categoría encontrada
     }
-    
+
     async obtenerDetallesProveedor(idProveedor) {
         const query = `SELECT nombre_proveedor FROM proveedores WHERE id = ?`;
         const [proveedor] = await db.query(query, [idProveedor]);
@@ -75,7 +75,7 @@ class abastecimientoDAO {
         `;
         await db.query(query, [nuevaCantidad, idProducto]);
     }
-    
+
 
     async registrarAbastecimiento(datosAbastecimiento) {
         const { id_proveedor, id_producto, cantidad, id_categoria, precio_unitario, total, id_user_creacion } = datosAbastecimiento;
@@ -132,7 +132,7 @@ class abastecimientoDAO {
         const query = `
             SELECT id, nombre_producto, marca_producto, cantidad_producto
             FROM productos 
-            WHERE id_categoria = ? AND estado_producto = 'activo'
+            WHERE id_categoria = ? 
         `;
         const [productos] = await db.query(query, [idCategoria]);
         return productos;

@@ -4,7 +4,7 @@ import fileUploadMiddleware from '../middlewares/fileUpload.js';
 import {
     crearProducto, modificarProducto, obtenerProductos,
     obtenerProductosPorCategoria, obtenerProductosPorMarca, cambiarEstado,
-    obtenerProductosActivos, obtenerProductosActivosPorCategoria, obtenerProductosActivosPorMarca
+    obtenerProductosActivos, obtenerProductosActivosPorCategoria, obtenerProductosActivosPorMarca, obtenerProductoPorId
 } from '../controllers/productoController.js';
 
 const router = express.Router();
@@ -16,6 +16,7 @@ router.get('/', authMiddleware(['administrador', 'empleado', 'superadministrador
 router.get('/categoria/:id_categoria', authMiddleware(['administrador', 'empleado', 'superadministrador']), obtenerProductosPorCategoria);
 router.get('/marca/:marca', authMiddleware(['administrador', 'empleado', 'superadministrador']), obtenerProductosPorMarca);
 router.put('/:id/estado', authMiddleware(['administrador', 'empleado', 'superadministrador']), cambiarEstado);
+router.get('/activos/:id', obtenerProductoPorId);
 
 // -------------------- Rutas para Clientes --------------------
 router.get('/activos', obtenerProductosActivos);

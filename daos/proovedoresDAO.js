@@ -122,16 +122,23 @@ class ProveedoresDAO {
                 p.email_proveedor, 
                 p.direccion_proveedor, 
                 p.estado_proveedor,
-                GROUP_CONCAT(pc.id_categoria) AS categorias
+                JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', c.id,
+                        'nombre_categoria', c.nombre_categoria
+                    )
+                ) AS categorias
             FROM PROVEEDORES p
             LEFT JOIN proveedor_categoria pc ON p.id = pc.id_proveedor
+            LEFT JOIN CATEGORIAS c ON pc.id_categoria = c.id
             GROUP BY p.id, p.nombre_proveedor, p.telefono_proveedor, 
                      p.email_proveedor, p.direccion_proveedor, p.estado_proveedor
         `;
-
+    
         const [result] = await db.query(query);
         return result;
     }
+    
 
 }
 

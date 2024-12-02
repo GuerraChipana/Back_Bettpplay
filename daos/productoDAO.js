@@ -235,6 +235,12 @@ class ProductoDAO {
         const query = `UPDATE productos SET cantidad_producto = cantidad_producto - ? WHERE id = ?`;
         await db.query(query, [cantidad, id_producto]);
     }
+    // Método para buscar un producto por ID
+    async buscarProductoPorId(id) {
+        const [producto] = await db.query('SELECT * FROM productos WHERE id = ?', [id]);
+        if (producto.length === 0) throw new Error('Producto no encontrado');
+        return producto[0]; // Retornar el primer producto encontrado
+    }
 
 
 }
