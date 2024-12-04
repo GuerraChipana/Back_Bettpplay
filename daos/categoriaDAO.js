@@ -8,7 +8,7 @@ class CategoriaDAO {
         const { nombre_categoria, detalle_categoria, id_user_creacion } = datosCategoria;
 
         // Verificamos si existe una categoría con el mismo nombre
-        const queryVerificar = `SELECT NOMBRE_CATEGORIA FROM CATEGORIAS WHERE NOMBRE_CATEGORIA = ?`;
+        const queryVerificar = `SELECT nombre_categoria FROM categorias WHERE nombre_categoria = ?`;
         const [categoriaExistente] = await db.query(queryVerificar, [nombre_categoria]);
         if (categoriaExistente.length > 0) {
             throw new Error('Ya existe una categoría con el mismo nombre');
@@ -22,7 +22,7 @@ class CategoriaDAO {
             const imageUrl = await subirFoto(file, nombreArchivo);
 
             // Insertamos la categoría en la base de datos
-            const queryInsertar = `INSERT INTO CATEGORIAS (IMAGEN_CATEGORIA, NOMBRE_CATEGORIA, DETALLE_CATEGORIA, ID_USER_CREACION) VALUES (?,?,?,?)`;
+            const queryInsertar = `INSERT INTO categorias (imagen_categoria, nombre_categoria, detalle_categoria, id_user_creacion) VALUES (?,?,?,?)`;
             const [result] = await db.query(queryInsertar, [
                 imageUrl,
                 nombre_categoria,
@@ -38,7 +38,7 @@ class CategoriaDAO {
     }
 
     async verificarCategoriaExistente(nombre_categoria, id) {
-        const query = `SELECT NOMBRE_CATEGORIA FROM CATEGORIAS WHERE NOMBRE_CATEGORIA = ? AND ID != ?`;
+        const query = `SELECT nombre_categoria FROM categorias WHERE nombre_categoria = ? AND id != ?`;
         const [result] = await db.query(query, [nombre_categoria, id]);
         return result;
     }
@@ -46,7 +46,7 @@ class CategoriaDAO {
         const { nombre_categoria, detalle_categoria } = datosCategoria;
     
         // Realizamos la consulta para obtener los datos completos de la categoría
-        const [categoriaActual] = await db.query('SELECT * FROM CATEGORIAS WHERE ID = ?', [id]);
+        const [categoriaActual] = await db.query('SELECT * FROM categorias WHERE id = ?', [id]);
     
         console.log('Datos recuperados de la base de datos:', categoriaActual);  // Verifica qué datos estás recibiendo
     
@@ -57,7 +57,7 @@ class CategoriaDAO {
         }
     
         // Realizamos una consulta separada para obtener solo la imagen de la categoría
-        const [imageUrlData] = await db.query('SELECT imagen_categoria FROM CATEGORIAS WHERE ID = ?', [id]);
+        const [imageUrlData] = await db.query('SELECT imagen_categoria FROM categorias WHERE id = ?', [id]);
     
         console.log('Imagen anterior:', imageUrlData);  // Verifica si la URL está presente o no
     
@@ -88,9 +88,9 @@ class CategoriaDAO {
     
         // Actualizamos los datos de la categoría en la base de datos
         const queryActualizar = `
-        UPDATE CATEGORIAS
-        SET imagen_categoria = ?, NOMBRE_CATEGORIA = ?, DETALLE_CATEGORIA = ?, FECHA_MODIFICACION = NOW(), ID_USER_MODIFICACION = ?
-        WHERE ID = ?`;
+        UPDATE categorias
+        SET imagen_categoria = ?, nombre_categoria = ?, detalle_categoria = ?, fecha_modificacion = NOW(), id_user_modificacion = ?
+        WHERE id = ?`;
     
         const result = await db.query(queryActualizar, [
             nuevaImagenUrl,  // Si no se pasa imagen, se conserva la URL anterior
@@ -107,25 +107,25 @@ class CategoriaDAO {
     
         // Retornamos la categoría con los datos actualizados, incluyendo la URL de la imagen
         return {
-            ID: id,
-            IMAGEN_CATEGORIA: nuevaImagenUrl,  // Siempre incluimos la URL de la imagen
-            NOMBRE_CATEGORIA: nombre_categoria,
-            DETALLE_CATEGORIA: detalle_categoria,
-            ESTADO_CATEGORIA: categoriaActual[0].ESTADO_CATEGORIA  // Incluimos el estado también si lo deseas
+            id,
+            imagen_categoria: nuevaImagenUrl,  // Siempre incluimos la URL de la imagen
+            nombre_categoria,
+            detalle_categoria,
+            estado_categoria: categoriaActual[0].estado_categoria  // Incluimos el estado también si lo deseas
         };
     }
     
-      async cambiarEstadoCategoria(id, nuevoEstado, id_user_modificacion) {
+    async cambiarEstadoCategoria(id, nuevoEstado, id_user_modificacion) {
         const query = `
-        UPDATE CATEGORIAS
-        SET ESTADO_CATEGORIA = ?, ID_USER_MODIFICACION = ?, FECHA_MODIFICACION=NOW()
-        WHERE ID = ?`;
+        UPDATE categorias
+        SET estado_categoria = ?, id_user_modificacion = ?, fecha_modificacion = NOW()
+        WHERE id = ?`;
         await db.query(query, [nuevoEstado, id_user_modificacion, id]);
         return { id, estado: nuevoEstado };
     }
 
     async listarCategorias({ estado = null, nombre = null }) {
-        let query = 'SELECT ID,IMAGEN_CATEGORIA, NOMBRE_CATEGORIA,DETALLE_CATEGORIA,ESTADO_CATEGORIA FROM categorias WHERE 1=1';
+        let query = 'SELECT id, imagen_categoria, nombre_categoria, detalle_categoria, estado_categoria FROM categorias WHERE 1=1';
         const params = [];
 
         if (estado) {
@@ -142,17 +142,16 @@ class CategoriaDAO {
     }
     // Obtener categoría por ID
     async obtenerCategoriaPorId(id) {
-        const query = `SELECT ID,IMAGEN_CATEGORIA, NOMBRE_CATEGORIA, DETALLE_CATEGORIA, ESTADO_CATEGORIA FROM CATEGORIAS WHERE ID = ?`;
+        const query = `SELECT id, imagen_categoria, nombre_categoria, detalle_categoria, estado_categoria FROM categorias WHERE id = ?`;
         const [categoria] = await db.query(query, [id]);
         return categoria.length > 0 ? categoria[0] : null;
     }
     // Obtener categoría activa por ID
     async obtenerCategoriaActivaPorId(id) {
-        const query = `SELECT IMAGEN_CATEGORIA, NOMBRE_CATEGORIA, DETALLE_CATEGORIA, ESTADO_CATEGORIA FROM CATEGORIAS WHERE ID = ? AND ESTADO_CATEGORIA = 'activo'`;
+        const query = `SELECT imagen_categoria, nombre_categoria, detalle_categoria, estado_categoria FROM categorias WHERE id = ? AND estado_categoria = 'activo'`;
         const [categoria] = await db.query(query, [id]);
         return categoria.length > 0 ? categoria[0] : null;
     }
-
 
 }
 
