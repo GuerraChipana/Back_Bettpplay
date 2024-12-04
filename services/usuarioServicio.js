@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt'; // Asegúrate de importar bcrypt
+import bcrypt from 'bcryptjs'; // Asegúrate de importar bcrypt
 import usuarioDAO from '../daos/usuarioDAO.js';
 
 class UsuarioServicio {
