@@ -22,10 +22,10 @@ class ProductoDAO {
         const imageUrl = await subirFoto(file, nombreArchivo);
 
         // Insertar el nuevo producto con cantidad inicial 0 y estado "agotado"
-        const queryInsertar =
-            `INSERT INTO productos
-            (imagen, nombre_producto, descripcion_producto, marca_producto, precio_producto, cantidad_producto, estado_producto, id_categoria, id_user_creacion)
-            VALUES(?, ?, ?, ?, ?, 0, 'agotado', ?, ?);`;
+        const queryInsertar = `
+        INSERT INTO productos
+        (imagen, nombre_producto, descripcion_producto, marca_producto, precio_producto, cantidad_producto, estado_producto, id_categoria, id_user_creacion, id_user_modificacion)
+        VALUES (?, ?, ?, ?, ?, 0, 'agotado', ?, ?, NULL);      `;
         const [result] = await db.query(queryInsertar, [
             imageUrl,
             nombre_producto,
@@ -34,6 +34,7 @@ class ProductoDAO {
             precio_producto,
             id_categoria,
             id_user_creacion
+
         ]);
 
         return { productoID: result.insertId, imageUrl };
