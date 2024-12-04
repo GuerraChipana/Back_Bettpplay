@@ -20,7 +20,7 @@ export const subirFoto = async (file, nombreArchivo) => {
 
     try {
         await fs.promises.rename(file.path, filePath);
-        const imageUrl = `http://localhost:3004/uploads/${nombreCompleto}`;
+        const imageUrl = `https://bettpplay-production.up.railway.app/uploads/${nombreCompleto}`;
         return imageUrl;
     } catch (error) {
         throw new Error('Error al guardar la imagen en el servidor');
