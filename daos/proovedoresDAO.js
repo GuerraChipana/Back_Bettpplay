@@ -6,8 +6,8 @@ class ProveedoresDAO {
 
         try {
             const queryInsertar = `
-                INSERT INTO PROVEEDORES 
-                (NOMBRE_PROVEEDOR, TELEFONO_PROVEEDOR, EMAIL_PROVEEDOR, DIRECCION_PROVEEDOR, ID_USER_CREACION, FECHA_REGISTRO) 
+                INSERT INTO proveedores 
+                (nombre_proveedor, telefono_proveedor, email_proveedor, direccion_proveedor, id_user_creacion, fecha_registro) 
                 VALUES (?, ?, ?, ?, ?, NOW())
             `;
             const [result] = await db.query(queryInsertar, [
@@ -34,9 +34,9 @@ class ProveedoresDAO {
             SELECT id, nombre_proveedor, telefono_proveedor, email_proveedor, direccion_proveedor, 
             estado_proveedor, id_user_creacion, fecha_registro, id_user_modificacion, 
             IFNULL(fecha_modificacion, 'No modificado') AS fecha_modificacion 
-            FROM PROVEEDORES 
-            WHERE (EMAIL_PROVEEDOR = ? OR NOMBRE_PROVEEDOR = ? 
-            OR TELEFONO_PROVEEDOR = ? OR DIRECCION_PROVEEDOR = ?)
+            FROM proveedores 
+            WHERE (email_proveedor = ? OR nombre_proveedor = ? 
+            OR telefono_proveedor = ? OR direccion_proveedor = ?)
         `;
         const params = [email, nombre, telefono, direccion];
 
@@ -57,9 +57,9 @@ class ProveedoresDAO {
 
         try {
             const queryActualizar = `
-                UPDATE PROVEEDORES 
-                SET NOMBRE_PROVEEDOR = ?, TELEFONO_PROVEEDOR = ?, EMAIL_PROVEEDOR = ?, 
-                    DIRECCION_PROVEEDOR = ?, FECHA_MODIFICACION = NOW(), ID_USER_MODIFICACION = ?
+                UPDATE proveedores 
+                SET nombre_proveedor = ?, telefono_proveedor = ?, email_proveedor = ?, 
+                    direccion_proveedor = ?, fecha_modificacion = NOW(), id_user_modificacion = ?
                 WHERE ID = ?
             `;
             const [result] = await db.query(queryActualizar, [
@@ -85,13 +85,13 @@ class ProveedoresDAO {
     }
 
     async cambiarEstadoProveedor(id, estado_proveedor, id_user_modificacion) {
-        const [proveedorActual] = await db.query('SELECT * FROM PROVEEDORES WHERE ID = ?', [id]);
+        const [proveedorActual] = await db.query('SELECT * FROM proveedores WHERE ID = ?', [id]);
         if (proveedorActual.length === 0) throw new Error("Proveedor no encontrado");
 
         // Actualizar estado del proveedor
         const queryActualizarEstado = `
-            UPDATE PROVEEDORES
-            SET ESTADO_PROVEEDOR = ?, FECHA_MODIFICACION = NOW(), ID_USER_MODIFICACION = ?
+            UPDATE proveedores
+            SET ESTADO_PROVEEDOR = ?, fecha_modificacion = NOW(), id_user_modificacion = ?
             WHERE ID = ?`;
 
         const result = await db.query(queryActualizarEstado, [
