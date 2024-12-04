@@ -122,11 +122,21 @@ class abastecimientoDAO {
             SELECT p.id, p.nombre_proveedor
             FROM proveedores p
             INNER JOIN proveedor_categoria pc ON p.id = pc.id_proveedor
-            WHERE pc.id_categoria = ? AND p.estado_proveedor = 'activo' AND pc.estado = 'activo'
+            WHERE pc.id_categoria = ?
+              AND p.estado_proveedor = 'activo'
+              AND pc.estado = 1  -- Comparando con 1 en lugar de 'activo'
         `;
-        const [proveedores] = await db.query(query, [idCategoria]);
-        return proveedores;
+        
+        try {
+            const [proveedores] = await db.query(query, [idCategoria]);
+            return proveedores;
+        } catch (error) {
+            console.error('Error al obtener proveedores por categoría:', error);
+            throw error; // Lanza el error para que pueda ser manejado
+        }
     }
+    
+    
 
     async obtenerProductosPorCategoria(idCategoria) {
         const query = `
