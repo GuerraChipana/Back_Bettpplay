@@ -128,9 +128,9 @@ class ProveedoresDAO {
                         'nombre_categoria', c.nombre_categoria
                     )
                 ) AS categorias
-            FROM PROVEEDORES p
+            FROM proveedores p
             LEFT JOIN proveedor_categoria pc ON p.id = pc.id_proveedor
-            LEFT JOIN CATEGORIAS c ON pc.id_categoria = c.id
+            LEFT JOIN categorias c ON pc.id_categoria = c.id
             GROUP BY p.id, p.nombre_proveedor, p.telefono_proveedor, 
                      p.email_proveedor, p.direccion_proveedor, p.estado_proveedor
         `;
