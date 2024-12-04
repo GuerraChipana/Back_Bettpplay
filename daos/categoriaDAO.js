@@ -44,54 +44,61 @@ class CategoriaDAO {
     }
     async editarCategoria(id, datosCategoria, file, id_user_modificacion) {
         const { nombre_categoria, detalle_categoria } = datosCategoria;
-    
+
         // Realizamos la consulta para obtener los datos completos de la categoría
         const [categoriaActual] = await db.query('SELECT * FROM categorias WHERE id = ?', [id]);
-    
+
         console.log('Datos recuperados de la base de datos:', categoriaActual);  // Verifica qué datos estás recibiendo
-    
+
         // Si no se encuentra la categoría, lanzamos un error
         if (!categoriaActual || categoriaActual.length === 0) {
             console.log('Categoría no encontrada para ID:', id);
             throw new Error('Categoría no encontrada');
         }
-    
+
+        // Comprobamos si el nombre de la categoría ya existe en otra categoría (diferente a la actual)
+        const [existingCategory] = await db.query('SELECT * FROM categorias WHERE nombre_categoria = ? AND id != ?', [nombre_categoria, id]);
+
+        if (existingCategory.length > 0) {
+            throw new Error('Ya existe otra categoría con el mismo nombre');
+        }
+
         // Realizamos una consulta separada para obtener solo la imagen de la categoría
         const [imageUrlData] = await db.query('SELECT imagen_categoria FROM categorias WHERE id = ?', [id]);
-    
+
         console.log('Imagen anterior:', imageUrlData);  // Verifica si la URL está presente o no
-    
+
         // Si la URL de la imagen es null o no está definida, la dejamos vacía
         let imageUrlAnterior = imageUrlData && imageUrlData[0] ? imageUrlData[0].imagen_categoria : null;
-    
+
         console.log('Imagen URL anterior:', imageUrlAnterior);  // Verifica si la URL de la imagen fue recuperada correctamente
-    
+
         // Si no se pasa un archivo (imagen), conservamos la URL anterior
         let nuevaImagenUrl = imageUrlAnterior;
-    
+
         // Si se ha recibido un archivo (imagen), procesamos la nueva imagen
         if (file) {
             console.log('Nuevo archivo recibido:', file);
-    
+
             const nuevoNombreArchivo = nombre_categoria.replace(/\s+/g, '_').toLowerCase();
-    
+
             // Si existe una imagen anterior, la eliminamos
             if (imageUrlAnterior) {
                 const nombreArchivoAnterior = imageUrlAnterior.split('/').pop();
                 await eliminarFoto(nombreArchivoAnterior);  // Elimina la imagen anterior si existe
             }
-    
+
             // Subimos la nueva imagen y obtenemos su URL
             nuevaImagenUrl = await subirFoto(file, nuevoNombreArchivo);
             console.log('Nueva imagen subida, URL:', nuevaImagenUrl);
         }
-    
+
         // Actualizamos los datos de la categoría en la base de datos
         const queryActualizar = `
-        UPDATE categorias
-        SET imagen_categoria = ?, nombre_categoria = ?, detalle_categoria = ?, fecha_modificacion = NOW(), id_user_modificacion = ?
-        WHERE id = ?`;
-    
+            UPDATE categorias
+            SET imagen_categoria = ?, nombre_categoria = ?, detalle_categoria = ?, fecha_modificacion = NOW(), id_user_modificacion = ?
+            WHERE id = ?`;
+
         const result = await db.query(queryActualizar, [
             nuevaImagenUrl,  // Si no se pasa imagen, se conserva la URL anterior
             nombre_categoria,
@@ -99,12 +106,12 @@ class CategoriaDAO {
             id_user_modificacion,
             id
         ]);
-    
+
         // Si no se actualizó ninguna fila, lanzamos un error
         if (result.affectedRows === 0) {
             throw new Error('No se pudo actualizar la categoría');
         }
-    
+
         // Retornamos la categoría con los datos actualizados, incluyendo la URL de la imagen
         return {
             id,
@@ -114,7 +121,7 @@ class CategoriaDAO {
             estado_categoria: categoriaActual[0].estado_categoria  // Incluimos el estado también si lo deseas
         };
     }
-    
+
     async cambiarEstadoCategoria(id, nuevoEstado, id_user_modificacion) {
         const query = `
         UPDATE categorias

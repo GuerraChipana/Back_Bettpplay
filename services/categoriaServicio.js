@@ -30,14 +30,7 @@ class CategoriaServicio {
         }
         if (!detalle_categoria) {
             throw new Error("Detalle de la categoría es obligatorio");
-        }
-
-        // Verificamos si existe otro nombre igual, excluyendo el actual
-        const categoriaExistente = await categoriaDAO.verificarCategoriaExistente(nombre_categoria, id);
-        if (categoriaExistente.length > 0) {
-            throw new Error('Ya existe otra categoría con el mismo nombre');
-        }
-        
+        }     
         
      // Procedemos a llamar al DAO que actualizará la categoría y nos retornará los datos actualizados
         return await categoriaDAO.editarCategoria(id, datosCategoria, file, id_user_modificacion);
